@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survei Lingkungan Belajar SMA - Malika Islamic Boarding School</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a cleaner look and better readability */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* Soft sky blue background */
+        }
+        /* Sticky header (already sticky) */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        .card {
+            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        /* === PERUBAHAN: Box Setiap Jawaban menjadi Putih === */
+        .question-group {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-left: 4px solid #38bdf8; /* Bright Blue accent */
+            border-radius: 0.5rem;
+            background-color: #ffffff; /* White background as requested */
+            color: #1f2937; /* Dark text for readability */
+        }
+        
+        /* Running Text Marquee - Sticky & Warna Biru Cerah */
+        .running-text-container {
+            background-color: #0ea5e9; /* Bright Sky Blue */
+            color: white;
+            padding: 0.5rem 0;
+            overflow: hidden;
+            white-space: nowrap;
+            position: sticky;
+            top: 4rem;
+            z-index: 10;
+        }
+        
+        /* Menyesuaikan subtext dalam question group */
+        .question-group .text-gray-500, .question-group .text-gray-600 {
+            color: #4b5563; /* Darker gray text for sub-info */
+        }
+
+        /* Menyesuaikan kotak input/textarea di dalam question group */
+        .question-group input[type="text"], .question-group textarea {
+             background-color: #f9fafb; /* Very light gray background for inputs */
+             border-color: #d1d5db;
+             color: #1f2937;
+        }
+
+        /* Styling Opsi Jawaban (Radio/Checkbox) */
+        .radio-option, .checkbox-option {
+            transition: all 0.2s;
+            position: relative;
+            background-color: #ffffff; /* White background */
+            color: #1f2937;
+            border: 2px solid #e5e7eb; /* Light border */
+            cursor: pointer;
+        }
+        
+        /* Animasi Floating */
+        @keyframes float-up {
+            0% { transform: translateY(0); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            50% { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
+            100% { transform: translateY(0); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        }
+        .animate-float {
+            animation: float-up 0.3s ease-in-out;
+        }
+
+        /* Warna saat terpilih (checked) - Biru Cerah */
+        input[type="radio"]:checked + label,
+        input[type="checkbox"]:checked + label {
+            background-color: #e0f2fe; /* Very Light Blue background on selection */
+            border-color: #38bdf8; /* Bright Blue border */
+            font-weight: 600;
+        }
+        
+        /* Tombol Submit Warna Biru Cerah */
+        .submit-button {
+            transition: background-color 0.3s, transform 0.1s;
+            background-color: #0ea5e9; /* Bright Sky Blue */
+        }
+        .submit-button:hover {
+            background-color: #0284c7; /* Slightly darker bright blue on hover */
+            transform: translateY(-1px);
+        }
+
+        /* Penyesuaian untuk kotak peringatan merah (Q11) agar terlihat pada background terang */
+        .question-group.bg-red-50 {
+            background-color: #fef2f2; /* Very light red for warning box */
+            border-left: 4px solid #ef4444; /* Standard red accent */
+        }
+        .question-group.bg-red-50 p, .question-group.bg-red-50 label {
+            color: #b91c1c; /* Dark red text */
+        }
+
+        /* Required Asterisk */
+        .required-label::after {
+            content: "*";
+            color: #ef4444; /* Red asterisk */
+            margin-left: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center">
+            <img src="https://iili.io/FsLlXA7.png" alt="Logo Malika Islamic Boarding School" class="h-10 w-auto rounded-full shadow-md mr-4" onerror="this.onerror=null; this.src='https://placehold.co/40x40/06b6d4/ffffff?text=Logo'">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">
+                Survei Lingkungan Belajar
+                <span class="block text-sm font-light text-sky-600">Malika Islamic Boarding School (MBS)</span>
+            </h1>
+        </div>
+    </header>
+
+    <!-- Running Text Marquee - Now Sticky Below Header -->
+    <div class="running-text-container">
+        <marquee behavior="scroll" direction="left" scrollamount="6">
+            <span class="font-semibold tracking-wider text-sm">Kami menghargai suaramu, Isilah dengan jujur sesuai keadaan sebenarnya! Tidak ada jawaban benar atau, ini untuk perbaikan kita bersama.</span>
+        </marquee>
+    </div>
+
+    <!-- Main Form Container -->
+    <main class="max-w-4xl mx-auto px-4 pb-8">
+        <form id="surveyForm" class="mt-8">
+
+            <div id="statusMessage" class="hidden p-4 mb-4 text-sm font-medium text-green-800 rounded-lg bg-green-50" role="alert"></div>
+
+            <!-- Bagian 1: Data Santri -->
+            <div class="card">
+                <h2 class="text-xl font-semibold mb-6 text-sky-700 border-b pb-2">1. Data Santri</h2>
+                
+                <div class="mb-5">
+                    <label for="kelas" class="block mb-2 font-medium text-gray-700 required-label">Pilih Kelas</label>
+                    <select id="kelas" name="Kelas" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm text-gray-800 bg-white">
+                        <option value="" disabled selected>-- Pilih Kelas --</option>
+                        <option value="Kelas 10 Putra">Kelas 10 Putra</option>
+                        <option value="Kelas 10 Putri">Kelas 10 Putri</option>
+                    </select>
+                </div>
+
+                <div class="mb-5">
+                    <label for="nama" class="block mb-2 font-medium text-gray-700 required-label">Pilih Nama Santri</label>
+                    <select id="nama" name="Nama Santri" required disabled class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm text-gray-800 bg-gray-100">
+                        <option value="" disabled selected>-- Pilih Kelas Dahulu --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bagian 2: Pertanyaan Pilihan Ganda (Radio/Checkbox) -->
+            <div class="card">
+                <h2 class="text-xl font-semibold mb-6 text-sky-700 border-b pb-2">2. Pertanyaan Inti Survei</h2>
+
+                <!-- Q1: Kesadaran Tujuan Orang Tua -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu menyadari bahwa orang tua menitipkan kamu di MBS agar kamu bisa menjadi lebih baik?</p>
+                    <div class="flex flex-col md:flex-row gap-2">
+                        <input type="radio" id="q1_a" name="Q1_KesadaranOrtu" value="Ya, saya sadar dan ingin berterima kasih kepada orang tua" class="hidden" required>
+                        <label for="q1_a" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Ya, saya sadar dan ingin berterima kasih kepada orang tua</label>
+                        
+                        <input type="radio" id="q1_b" name="Q1_KesadaranOrtu" value="Biasa saja" class="hidden">
+                        <label for="q1_b" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Biasa saja</label>
+                        
+                        <input type="radio" id="q1_c" name="Q1_KesadaranOrtu" value="Tidak menyadari" class="hidden">
+                        <label for="q1_c" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Tidak menyadari</label>
+                    </div>
+                </div>
+
+                <!-- Q2: Peningkatan Diri -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu merasa ada peningkatan pengetahuan, akhlak, disiplin, dan ibadah dalam 4 bulan ini?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q2_a" name="Q2_PeningkatanDiri" value="Sangat meningkat" class="hidden" required>
+                        <label for="q2_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sangat meningkat</label>
+                        
+                        <input type="radio" id="q2_b" name="Q2_PeningkatanDiri" value="Cukup meningkat" class="hidden">
+                        <label for="q2_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Cukup meningkat</label>
+
+                        <input type="radio" id="q2_c" name="Q2_PeningkatanDiri" value="Belum banyak berubah" class="hidden">
+                        <label for="q2_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Belum banyak berubah</label>
+                        
+                        <input type="radio" id="q2_d" name="Q2_PeningkatanDiri" value="Justru menurun" class="hidden">
+                        <label for="q2_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Justru menurun</label>
+                    </div>
+                </div>
+
+                <!-- Q3: Penyampaian Materi Guru -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah guru di jam sekolah sudah menyampaikan materi pelajaran dengan jelas?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q3_a" name="Q3_MateriGuru" value="Sangat jelas" class="hidden" required>
+                        <label for="q3_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sangat jelas</label>
+                        
+                        <input type="radio" id="q3_b" name="Q3_MateriGuru" value="Cukup jelas" class="hidden">
+                        <label for="q3_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Cukup jelas</label>
+
+                        <input type="radio" id="q3_c" name="Q3_MateriGuru" value="Kadang kurang jelas" class="hidden">
+                        <label for="q3_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kadang kurang jelas</label>
+                        
+                        <input type="radio" id="q3_d" name="Q3_MateriGuru" value="Tidak jelas" class="hidden">
+                        <label for="q3_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Tidak jelas</label>
+                    </div>
+                </div>
+                
+                <!-- Q4: Perbedaan Metode Mengajar -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu merasa ada perbedaan metode guru mengajar antara MBS dengan sekolah sebelumnya?</p>
+                    <div class="flex flex-col md:flex-row gap-2">
+                        <input type="radio" id="q4_a" name="Q4_MetodeMengajar" value="Lebih menarik di sekolah sebelumnya" class="hidden" required>
+                        <label for="q4_a" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Lebih menarik di sekolah sebelumnya</label>
+                        
+                        <input type="radio" id="q4_b" name="Q4_MetodeMengajar" value="Lebih menarik di MBS" class="hidden">
+                        <label for="q4_b" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Lebih menarik di MBS</label>
+                        
+                        <input type="radio" id="q4_c" name="Q4_MetodeMengajar" value="Sama tidak ada perbedaan yang signifikan" class="hidden">
+                        <label for="q4_c" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Sama tidak ada perbedaan yang signifikan</label>
+                    </div>
+                </div>
+
+                <!-- Q5: Kepedulian Musyrif/Musyrifah -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah musyrif atau musyrifah selama ini peduli terhadap ketertiban dan kondisi kamu?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q5_a" name="Q5_KepedulianMusyrif" value="Sangat peduli" class="hidden" required>
+                        <label for="q5_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sangat peduli</label>
+                        
+                        <input type="radio" id="q5_b" name="Q5_KepedulianMusyrif" value="Cukup peduli" class="hidden">
+                        <label for="q5_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Cukup peduli</label>
+
+                        <input type="radio" id="q5_c" name="Q5_KepedulianMusyrif" value="Kadang acuh" class="hidden">
+                        <label for="q5_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kadang acuh</label>
+                        
+                        <input type="radio" id="q5_d" name="Q5_KepedulianMusyrif" value="Tidak peduli" class="hidden">
+                        <label for="q5_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Tidak peduli</label>
+                    </div>
+                </div>
+
+                <!-- Q6: Kenyamanan Bercerita -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu merasa nyaman dan percaya untuk bercerita jika ada masalah kepada musyrif atau musyrifah?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q6_a" name="Q6_KenyamananBercerita" value="Sangat nyaman dan percaya" class="hidden" required>
+                        <label for="q6_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sangat nyaman dan percaya</label>
+                        
+                        <input type="radio" id="q6_b" name="Q6_KenyamananBercerita" value="Kadang nyaman" class="hidden">
+                        <label for="q6_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kadang nyaman</label>
+
+                        <input type="radio" id="q6_c" name="Q6_KenyamananBercerita" value="Kurang nyaman" class="hidden">
+                        <label for="q6_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kurang nyaman</label>
+                        
+                        <input type="radio" id="q6_d" name="Q6_KenyamananBercerita" value="Tidak nyaman sama sekali" class="hidden">
+                        <label for="q6_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Tidak nyaman sama sekali</label>
+                    </div>
+                </div>
+
+                <!-- Q7: Keadilan OSMA (Hanya untuk yang mengisi OSMA, tapi dibuat umum) -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah sebagai pengurus OSMA kamu sudah bersikap adil dalam memberikan teguran atau hukuman kepada santri?</p>
+                    <p class="text-xs mb-2">*(Jawab sesuai pandanganmu, meskipun kamu bukan pengurus OSMA)*</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q7_a" name="Q7_KeadilanOSMA" value="Sangat adil" class="hidden" required>
+                        <label for="q7_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sangat adil</label>
+                        
+                        <input type="radio" id="q7_b" name="Q7_KeadilanOSMA" value="Cukup adil" class="hidden">
+                        <label for="q7_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Cukup adil</label>
+
+                        <input type="radio" id="q7_c" name="Q7_KeadilanOSMA" value="Kadang tidak adil" class="hidden">
+                        <label for="q7_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kadang tidak adil</label>
+                        
+                        <input type="radio" id="q7_d" name="Q7_KeadilanOSMA" value="Tidak adil" class="hidden">
+                        <label for="q7_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Tidak adil</label>
+                    </div>
+                </div>
+
+                <!-- Q8: Pola Makan -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu selalu rutin makan 3 kali setiap hari?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q8_a" name="Q8_PolaMakan" value="Selalu 3 kali" class="hidden" required>
+                        <label for="q8_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Selalu 3 kali</label>
+                        
+                        <input type="radio" id="q8_b" name="Q8_PolaMakan" value="Kadang 2 kali" class="hidden">
+                        <label for="q8_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kadang 2 kali</label>
+
+                        <input type="radio" id="q8_c" name="Q8_PolaMakan" value="Sering hanya 1 kali" class="hidden">
+                        <label for="q8_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sering hanya 1 kali</label>
+                        
+                        <input type="radio" id="q8_d" name="Q8_PolaMakan" value="Tidak teratur" class="hidden">
+                        <label for="q8_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Tidak teratur</label>
+                    </div>
+                </div>
+
+                <!-- Q9: Kebersihan Lingkungan -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Bagaimana menurutmu kebersihan di MBS (kamar tidur, kamar mandi, kelas, dan seluruh lingkungan)?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q9_a" name="Q9_Kebersihan" value="Sangat bersih dan terjaga" class="hidden" required>
+                        <label for="q9_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sangat bersih dan terjaga</label>
+                        
+                        <input type="radio" id="q9_b" name="Q9_Kebersihan" value="Cukup bersih" class="hidden">
+                        <label for="q9_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Cukup bersih</label>
+
+                        <input type="radio" id="q9_c" name="Q9_Kebersihan" value="Kurang bersih" class="hidden">
+                        <label for="q9_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kurang bersih</label>
+                        
+                        <input type="radio" id="q9_d" name="Q9_Kebersihan" value="Kotor dan perlu perhatian" class="hidden">
+                        <label for="q9_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Kotor dan perlu perhatian</label>
+                    </div>
+                </div>
+                
+                <!-- Q10: Bullying / Perundungan -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu pernah diejek, dipanggil dengan julukan buruk, atau dibentak oleh sesama santri?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q10_a" name="Q10_Bullying" value="Tidak pernah" class="hidden" required>
+                        <label for="q10_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Tidak pernah</label>
+                        
+                        <input type="radio" id="q10_b" name="Q10_Bullying" value="Pernah melihat" class="hidden">
+                        <label for="q10_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Pernah melihat</label>
+
+                        <input type="radio" id="q10_c" name="Q10_Bullying" value="Pernah mengalami" class="hidden">
+                        <label for="q10_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Pernah mengalami</label>
+                        
+                        <input type="radio" id="q10_d" name="Q10_Bullying" value="Sering terjadi di sekitar" class="hidden">
+                        <label for="q10_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sering terjadi di sekitar</label>
+                    </div>
+                </div>
+                
+                <!-- Q11: Pelecehan Seksual -->
+                <div class="question-group bg-red-50">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu pernah mengalami atau melihat orang lain melakukan tindakan pelecehan seksual kepada santri lain?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="radio" id="q11_a" name="Q11_PelecehanSeksual" value="Tidak pernah" class="hidden" required>
+                        <label for="q11_a" class="radio-option p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Tidak pernah</label>
+                        
+                        <input type="radio" id="q11_b" name="Q11_PelecehanSeksual" value="Pernah melihat" class="hidden">
+                        <label for="q11_b" class="radio-option p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Pernah melihat</label>
+
+                        <input type="radio" id="q11_c" name="Q11_PelecehanSeksual" value="Pernah mengalami" class="hidden">
+                        <label for="q11_c" class="radio-option p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Pernah mengalami</label>
+                        
+                        <input type="radio" id="q11_d" name="Q11_PelecehanSeksual" value="Tidak ingin menjawab" class="hidden">
+                        <label for="q11_d" class="radio-option p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400">Tidak ingin menjawab</label>
+                    </div>
+                </div>
+
+                <!-- Q12: Program yang Harus Ditingkatkan (Checkbox) -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Program apa yang kamu rasa masih harus ditingkatkan? (Boleh pilih lebih dari satu)</p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="p_tahfizh" name="Q12_ProgramDitingkatkan" value="Tahfizh" class="form-checkbox text-sky-600 rounded">
+                            <label for="p_tahfizh" class="ml-2 text-sm">Tahfizh</label>
+                        </div>
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="p_bahasa" name="Q12_ProgramDitingkatkan" value="Bahasa Asing" class="form-checkbox text-sky-600 rounded">
+                            <label for="p_bahasa" class="ml-2 text-sm">Bahasa Asing</label>
+                        </div>
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="p_adab" name="Q12_ProgramDitingkatkan" value="Pendidikan Adab" class="form-checkbox text-sky-600 rounded">
+                            <label for="p_adab" class="ml-2 text-sm">Pendidikan Adab</label>
+                        </div>
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="p_kitab" name="Q12_ProgramDitingkatkan" value="Kitab Kuning" class="form-checkbox text-sky-600 rounded">
+                            <label for="p_kitab" class="ml-2 text-sm">Kitab Kuning</label>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="p_lainnya" class="mb-1 text-sm text-gray-600">Lainnya, sebutkan:</label>
+                            <input type="text" id="p_lainnya" name="Q12_ProgramDitingkatkan_Lainnya" placeholder="..." class="p-2 border rounded-lg text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q13: Layanan yang Harus Ditingkatkan (Checkbox) -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Layanan apa yang kamu rasa masih harus ditingkatkan? (Boleh pilih lebih dari satu)</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="l_laundry" name="Q13_LayananDitingkatkan" value="Laundry" class="form-checkbox text-sky-600 rounded">
+                            <label for="l_laundry" class="ml-2 text-sm">Laundry</label>
+                        </div>
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="l_kantin" name="Q13_LayananDitingkatkan" value="Kantin" class="form-checkbox text-sky-600 rounded">
+                            <label for="l_kantin" class="ml-2 text-sm">Kantin</label>
+                        </div>
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="l_dapur" name="Q13_LayananDitingkatkan" value="Dapur" class="form-checkbox text-sky-600 rounded">
+                            <label for="l_dapur" class="ml-2 text-sm">Dapur (Dapur Umum/Tempat Masak)</label>
+                        </div>
+                        <div class="checkbox-option flex items-center p-3 border-2 rounded-lg cursor-pointer hover:border-sky-400">
+                            <input type="checkbox" id="l_kebersihan" name="Q13_LayananDitingkatkan" value="Kebersihan" class="form-checkbox text-sky-600 rounded">
+                            <label for="l_kebersihan" class="ml-2 text-sm">Kebersihan</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Q14: Persetujuan Penggunaan Teknologi -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu setuju penggunaan perangkat teknologi untuk pembelajaran?</p>
+                    <div class="flex flex-col md:flex-row gap-2">
+                        <input type="radio" id="q14_a" name="Q14_SetujuTeknologi" value="Sangat setuju" class="hidden" required>
+                        <label for="q14_a" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400 text-center">Sangat setuju</label>
+                        
+                        <input type="radio" id="q14_b" name="Q14_SetujuTeknologi" value="Belum setuju" class="hidden">
+                        <label for="q14_b" class="radio-option flex-1 p-3 border-2 rounded-lg text-sm cursor-pointer hover:border-sky-400 text-center">Belum setuju</label>
+                    </div>
+                </div>
+                
+                <!-- Q15: Kesiapan Perangkat Teknologi -->
+                <div class="question-group">
+                    <p class="font-semibold mb-3 required-label">Apakah kamu sudah siap dengan perangkat tersebut? dan apa jenisnya?</p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        <input type="radio" id="q15_a" name="Q15_KesiapanPerangkat" value="Sudah siap dengan Ipad" class="hidden" required>
+                        <label for="q15_a" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sudah siap dengan Ipad</label>
+                        
+                        <input type="radio" id="q15_b" name="Q15_KesiapanPerangkat" value="Sudah siap dengan tablet non Ipad" class="hidden">
+                        <label for="q15_b" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sudah siap dengan tablet non Ipad</label>
+
+                        <input type="radio" id="q15_c" name="Q15_KesiapanPerangkat" value="Sudah siap dengan laptop" class="hidden">
+                        <label for="q15_c" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Sudah siap dengan laptop</label>
+                        
+                        <input type="radio" id="q15_d" name="Q15_KesiapanPerangkat" value="Akan berdiskusi dulu dengan orang tua" class="hidden">
+                        <label for="q15_d" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Akan berdiskusi dulu dengan orang tua</label>
+
+                        <input type="radio" id="q15_e" name="Q15_KesiapanPerangkat" value="Belum siap" class="hidden">
+                        <label for="q15_e" class="radio-option p-3 border-2 rounded-lg text-sm text-center cursor-pointer hover:border-sky-400">Belum siap</label>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Bagian 3: Pertanyaan Terbuka -->
+            <div class="card">
+                <h2 class="text-xl font-semibold mb-6 text-sky-700 border-b pb-2">3. Jawaban Terbuka</h2>
+
+                <!-- Open Q1: Mapel Favorit -->
+                <div class="question-group">
+                    <label for="open_q1" class="block mb-2 font-semibold required-label">Mata pelajaran apa yang paling kamu sukai? Kenapa?</label>
+                    <textarea id="open_q1" name="Q_Open1_MapelSuka" rows="3" required class="w-full p-3 border rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm"></textarea>
+                </div>
+
+                <!-- Open Q2: Mapel Tersulit -->
+                <div class="question-group">
+                    <label for="open_q2" class="block mb-2 font-semibold required-label">Mata pelajaran apa yang menurutmu paling sulit? Kenapa?</label>
+                    <textarea id="open_q2" name="Q_Open2_MapelSulit" rows="3" required class="w-full p-3 border rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm"></textarea>
+                </div>
+
+                <!-- Open Q3: Hal Paling Tidak Nyaman -->
+                <div class="question-group">
+                    <label for="open_q3" class="block mb-2 font-semibold required-label">Hal apa yang paling tidak nyaman dan ingin diperbaiki?</label>
+                    <textarea id="open_q3" name="Q_Open3_HalTidakNyaman" rows="3" required class="w-full p-3 border rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm"></textarea>
+                </div>
+
+                <!-- Open Q4: Kegiatan Harapan -->
+                <div class="question-group">
+                    <label for="open_q4" class="block mb-2 font-semibold required-label">Kegiatan apa yang ingin kamu harapkan ada di kelas 10 atau 11 nanti?</label>
+                    <textarea id="open_q4" name="Q_Open4_KegiatanHarapan" rows="3" required class="w-full p-3 border rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm"></textarea>
+                </div>
+
+                <!-- Open Q5: Pesan untuk Pimpinan -->
+                <div class="question-group">
+                    <label for="open_q5" class="block mb-2 font-semibold required-label">Jika kamu bisa menyampaikan satu pesan kepada para pimpinan, apa yang ingin kamu sampaikan?</label>
+                    <textarea id="open_q5" name="Q_Open5_PesanPimpinan" rows="3" required class="w-full p-3 border rounded-lg focus:ring-sky-500 focus:border-sky-500 shadow-sm"></textarea>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center mt-8">
+                <button type="submit" id="submitButton" class="submit-button w-full md:w-1/2 text-white font-bold py-3 px-6 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-sky-500 focus:ring-opacity-50 text-lg">
+                    Kirim Jawaban Survei
+                </button>
+            </div>
+            <p class="text-center text-sm text-gray-500 mt-4">Terima kasih atas partisipasi dan kejujuran Anda.</p>
+
+        </form>
+    </main>
+
+    <script>
+        // Data Santri
+        const studentData = {
+            "Kelas 10 Putra": [
+                "Adhwa Arsya Gatfan", "Afa Zaidan Putra Tamba", "Ahmad Rafli Dhani Muzakki",
+                "Akmal Ihsan Huwaidi", "Albisna Zinata Ababil", "Asyraf Fairuz Mumtaz",
+                "Attiq Muzaki Ibrahim", "Bayanaca Qotthon Elbarca", "Bazyli Rafif Azka",
+                "Charli Andestian", "Danendra Apta Kayana", "Dhafinzha Muhammad Fakhri",
+                "Fasabbi Haqiqie Pramada Rozak", "Irsyad Haitami Fajrin", "Mikail Abdul Majid",
+                "Mochammad Alfath Dhafin", "Muaimar Ghadafi M. Asri", "Muhamad Fairuz Azmi",
+                "Muhamad Rafka Alvaro", "Muhammad Adil Shidqi", "Muhammad Agla Alfathur Rahman",
+                "Muhammad Ammar Muzakki", "Muhammad Azmi", "Muhammad Fahri Alfarizi",
+                "Muhammad Fahri Rosadi", "Muhammad Suryo Nugra Putra Anwar", "Nawwaf Bilza Pakpahan",
+                "Raditya Bustanul Tamam", "Raihan Ramadhan", "Salim Al Habsyi",
+                "Sayyid Aqil Sakhiy Wahyudi", "Yudha Pratama Nurwicaksana Nasution"
+            ],
+            "Kelas 10 Putri": [
+                "Alfina Dhiya Ulhaq", "Amelinda Nur Febrina", "Amira Azzarine",
+                "Anjeli Ghenia Asmedi", "Aulia Zahra Nursakinah", "Callysta Zhahira",
+                "Citra Aulia Saputra", "Egidhea Sakha Gendis", "Faiha Ulayya",
+                "Kanaya Azzalea Maulida", "Kayla Putri Azzahra", "Kesya Anastasya Putri",
+                "Keysha Hana Alzena", "Khansa Avicenna", "Maia Dina Islamiy Sobariah",
+                "Nailah Saffanah Rizqin", "Najwa Althafunisa", "Nasya Adya Mustafidah",
+                "Raihana Radwa Fahira", "Ratu Syahlina Samlawi", "Siti Aulia Rahma",
+                "Syifa Az Zahra", "Tia Anggrianti", "Ussy Elsinasari",
+                "Vicky Fadilah Luthfiyana", "Virly Evelyn Dean Zahra", "Wildatul Hasanah",
+                "Yolanda Febriani", "Yuha Rizqiyatul Muyassaroh", "Zahiratul Aisyi",
+                "Zulfa Nurul Fauziah"
+            ]
+        };
+
+        // DOM Elements
+        const classSelect = document.getElementById('kelas');
+        const nameSelect = document.getElementById('nama');
+        const surveyForm = document.getElementById('surveyForm');
+        const submitButton = document.getElementById('submitButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // URL Google Apps Script yang akan menerima data (SUDAH diisi)
+        const FORM_ACTION_URL = "https://script.google.com/macros/s/AKfycbySASooNEkhIPG9GnJ3-Ijfs5sWUYtENtdB3RU3sWW2awABeltTGhdDuSBTbouIh5AX/exec"; 
+        
+        // 1. Fungsi untuk mengisi dropdown Nama Santri
+        function populateNames() {
+            const selectedClass = classSelect.value;
+            const names = studentData[selectedClass] || [];
+
+            // Clear previous options
+            nameSelect.innerHTML = '<option value="" disabled selected>-- Pilih Nama Santri --</option>';
+
+            if (names.length > 0) {
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    nameSelect.appendChild(option);
+                });
+                nameSelect.disabled = false;
+                nameSelect.classList.remove('bg-gray-100');
+                nameSelect.classList.add('bg-white');
+            } else {
+                nameSelect.disabled = true;
+                nameSelect.classList.add('bg-gray-100');
+                nameSelect.classList.remove('bg-white');
+                nameSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kelas Dahulu --</option>';
+            }
+        }
+
+        // Event Listener untuk perubahan kelas
+        classSelect.addEventListener('change', populateNames);
+
+        // === Animasi Floating Function ===
+        function addFloatingAnimation(element) {
+            element.classList.add('animate-float');
+            setTimeout(() => {
+                element.classList.remove('animate-float');
+            }, 300); // 300ms duration
+        }
+
+        // 3. Tambahkan event listener untuk animasi floating pada pilihan jawaban
+        document.addEventListener('DOMContentLoaded', () => {
+            populateNames();
+            
+            // Target semua label radio
+            const radioLabels = document.querySelectorAll('.radio-option');
+            radioLabels.forEach(label => {
+                label.addEventListener('click', function() {
+                    addFloatingAnimation(this);
+                });
+            });
+
+            // Target semua container checkbox
+            const checkboxContainers = document.querySelectorAll('.checkbox-option');
+            checkboxContainers.forEach(container => {
+                container.addEventListener('click', function(e) {
+                     // Mencegah animasi ganda jika klik dari input/label di dalam
+                    if (e.target.tagName !== 'INPUT') { 
+                        addFloatingAnimation(this);
+                    }
+                });
+            });
+        });
+
+        // 2. Fungsi untuk mengumpulkan dan mengirim data
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            if (FORM_ACTION_URL.trim() === "") {
+                statusMessage.textContent = 'ERROR: URL Apps Script tidak ditemukan. Mohon periksa kembali kodenya.';
+                statusMessage.classList.remove('hidden', 'text-green-800', 'bg-green-50');
+                statusMessage.classList.add('text-red-800', 'bg-red-50');
+                return;
+            }
+
+            // Kumpulkan data
+            const formData = new FormData(surveyForm);
+            const data = {};
+
+            // Mengumpulkan jawaban Radio dan Textarea
+            for (let [key, value] of formData.entries()) {
+                if (key.startsWith('Q_Open')) {
+                    data[key] = value.trim();
+                } else if (key.includes('ProgramDitingkatkan_Lainnya')) {
+                    data[key] = value.trim();
+                } else if (!data[key] || typeof data[key] === 'string') {
+                    data[key] = value;
+                }
+            }
+            
+            // Mengumpulkan jawaban Checkbox (Q12 & Q13)
+            const programs = [];
+            const services = [];
+
+            surveyForm.querySelectorAll('input[name="Q12_ProgramDitingkatkan"]:checked').forEach(checkbox => {
+                programs.push(checkbox.value);
+            });
+            surveyForm.querySelectorAll('input[name="Q13_LayananDitingkatkan"]:checked').forEach(checkbox => {
+                services.push(checkbox.value);
+            });
+            
+            data['Q12_ProgramDitingkatkan_Pilihan'] = programs.join('; ');
+            data['Q13_LayananDitingkatkan_Pilihan'] = services.join('; ');
+            data['Timestamp'] = new Date().toISOString();
+
+            // Tampilkan Loading State
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim Jawaban...';
+            submitButton.classList.add('opacity-75');
+            statusMessage.classList.add('hidden');
+
+            // Kirim data ke Google Sheets via Apps Script
+            try {
+                const response = await fetch(FORM_ACTION_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data).toString()
+                });
+
+                // Asumsi sukses karena menggunakan 'no-cors'
+                
+                // Tampilkan pesan sukses
+                statusMessage.textContent = 'Terima kasih! Jawaban survei Anda telah berhasil dikirim.';
+                statusMessage.classList.remove('hidden', 'text-red-800', 'bg-red-50');
+                statusMessage.classList.add('text-green-800', 'bg-green-50');
+                surveyForm.reset();
+                populateNames();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Submission Error:', error);
+                statusMessage.textContent = 'Maaf, terjadi kesalahan saat mengirim data. Silakan coba lagi. Detail Error: ' + error.message;
+                statusMessage.classList.remove('hidden', 'text-green-800', 'bg-green-50');
+                statusMessage.classList.add('text-red-800', 'bg-red-50');
+
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Kirim Jawaban Survei';
+                submitButton.classList.remove('opacity-75');
+            }
+        }
+
+        // Event Listener untuk Submit Form
+        surveyForm.addEventListener('submit', handleSubmit);
+    </script>
+
+</body>
+</html>
